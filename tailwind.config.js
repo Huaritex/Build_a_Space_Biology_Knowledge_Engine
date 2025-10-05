@@ -18,57 +18,39 @@ export default {
     },
     extend: {
       colors: {
-        border: "var(--color-border)", /* white-10 */
-        input: "var(--color-input)", /* elevated-surface */
-        ring: "var(--color-ring)", /* nasa-blue */
-        background: "var(--color-background)", /* deep-charcoal */
-        foreground: "var(--color-foreground)", /* white */
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "var(--color-primary)", /* nasa-blue */
-          foreground: "var(--color-primary-foreground)", /* white */
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "var(--color-secondary)", /* elevated-surface */
-          foreground: "var(--color-secondary-foreground)", /* white */
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "var(--color-destructive)", /* error-red */
-          foreground: "var(--color-destructive-foreground)", /* white */
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "var(--color-muted)", /* elevated-surface */
-          foreground: "var(--color-muted-foreground)", /* medium-gray */
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "var(--color-accent)", /* light-blue */
-          foreground: "var(--color-accent-foreground)", /* white */
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT: "var(--color-popover)", /* elevated-surface */
-          foreground: "var(--color-popover-foreground)", /* white */
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "var(--color-card)", /* elevated-surface */
-          foreground: "var(--color-card-foreground)", /* white */
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
-        success: {
-          DEFAULT: "var(--color-success)", /* success-green */
-          foreground: "var(--color-success-foreground)", /* white */
-        },
-        warning: {
-          DEFAULT: "var(--color-warning)", /* warning-amber */
-          foreground: "var(--color-warning-foreground)", /* black */
-        },
-        error: {
-          DEFAULT: "var(--color-error)", /* error-red */
-          foreground: "var(--color-error-foreground)", /* white */
-        },
-        "nasa-red": {
-          DEFAULT: "var(--color-nasa-red)", /* nasa-red */
-          foreground: "var(--color-nasa-red-foreground)", /* white */
-        },
-        "text-primary": "var(--color-text-primary)", /* white */
-        "text-secondary": "var(--color-text-secondary)", /* medium-gray */
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -6,60 +6,33 @@
 
 @layer base {
   :root {
-    /* Core Colors */
-    --color-background: #1A1A1A; /* deep-charcoal */
-    --color-foreground: #FFFFFF; /* white */
-    --color-border: rgba(255, 255, 255, 0.1); /* white-10 */
-    --color-input: #2B2B2B; /* elevated-surface */
-    --color-ring: #0B3D91; /* nasa-blue */
-    
-    /* Card Colors */
-    --color-card: #2B2B2B; /* elevated-surface */
-    --color-card-foreground: #FFFFFF; /* white */
-    
-    /* Popover Colors */
-    --color-popover: #2B2B2B; /* elevated-surface */
-    --color-popover-foreground: #FFFFFF; /* white */
-    
-    /* Muted Colors */
-    --color-muted: #2B2B2B; /* elevated-surface */
-    --color-muted-foreground: #B0B0B0; /* medium-gray */
-    
-    /* Primary Colors */
-    --color-primary: #0B3D91; /* nasa-blue */
-    --color-primary-foreground: #FFFFFF; /* white */
-    
-    /* Secondary Colors */
-    --color-secondary: #2B2B2B; /* elevated-surface */
-    --color-secondary-foreground: #FFFFFF; /* white */
-    
-    /* Destructive Colors */
-    --color-destructive: #DC3545; /* error-red */
-    --color-destructive-foreground: #FFFFFF; /* white */
-    
-    /* Accent Colors */
-    --color-accent: #4A90E2; /* light-blue */
-    --color-accent-foreground: #FFFFFF; /* white */
-    
-    /* Success Colors */
-    --color-success: #28A745; /* success-green */
-    --color-success-foreground: #FFFFFF; /* white */
-    
-    /* Warning Colors */
-    --color-warning: #FFC107; /* warning-amber */
-    --color-warning-foreground: #000000; /* black */
-    
-    /* Error Colors */
-    --color-error: #DC3545; /* error-red */
-    --color-error-foreground: #FFFFFF; /* white */
-    
-    /* NASA Brand Colors */
-    --color-nasa-red: #FC3D21; /* nasa-red */
-    --color-nasa-red-foreground: #FFFFFF; /* white */
-    
-    /* Text Colors */
-    --color-text-primary: #FFFFFF; /* white */
-    --color-text-secondary: #B0B0B0; /* medium-gray */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 
   * {
