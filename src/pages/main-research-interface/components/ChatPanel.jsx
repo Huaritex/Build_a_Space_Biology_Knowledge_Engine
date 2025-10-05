@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Placeholder for an avatar component. In a real app, you'd fetch user images.
 const Avatar = ({ sender }) => (
@@ -80,26 +82,33 @@ const ChatPanel = ({
   };
 
   const renderMessageContent = (content, citations = []) => {
-    if (!citations?.length) return content;
-
-    let formattedContent = content;
-    // Create a regex to find all citation patterns like [1], [2], etc.
+    // Replace citation tokens with buttons while rendering the rest as Markdown
     const citationRegex = /\[(\d+)\]/g;
-    
-    const parts = formattedContent.split(citationRegex);
-
-    return parts.map((part, index) => {
-      // Even-indexed parts are text, odd-indexed parts are citation numbers
-      if (index % 2 === 1) {
-        const citationNum = parseInt(part);
-        if (citations.includes(citationNum)) {
-          return renderCitation(citationNum);
+    const parts = String(content ?? '').split(citationRegex);
+    const nodes = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        const citationNum = parseInt(parts[i], 10);
+        if (citations?.includes?.(citationNum)) {
+          nodes.push(
+            <React.Fragment key={`cit-${i}`}>
+              {renderCitation(citationNum)}
+            </React.Fragment>
+          );
         } else {
-          return `[${part}]`; // It's a number in brackets but not a valid citation
+          nodes.push(`[${parts[i]}]`);
         }
+      } else if (parts[i]) {
+        nodes.push(
+          <div key={`md-${i}`} className="prose prose-invert max-w-none text-sm leading-relaxed">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {parts[i]}
+            </ReactMarkdown>
+          </div>
+        );
       }
-      return part;
-    });
+    }
+    return nodes;
   };
 
   return (
@@ -133,7 +142,7 @@ const ChatPanel = ({
             >
               <p className="text-sm font-semibold text-foreground px-1">{message.sender}</p>
               <div
-                className={`mt-1 rounded-2xl p-3 max-w-md text-sm leading-relaxed whitespace-pre-wrap shadow relative ${
+                className={`mt-1 rounded-2xl p-3 max-w-md text-sm leading-relaxed shadow relative ${
                   message.type === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-slate-700 text-white'

@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const VisualizationPanel = ({ synthesisResult = '', isLoading = false }) => {
   return (
@@ -20,7 +22,11 @@ const VisualizationPanel = ({ synthesisResult = '', isLoading = false }) => {
             </div>
           </div>
         ) : synthesisResult ? (
-          <div className="prose prose-invert max-w-none text-base leading-7 whitespace-pre-wrap">{synthesisResult}</div>
+          <div className="prose prose-invert max-w-none text-base leading-7">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {synthesisResult}
+            </ReactMarkdown>
+          </div>
         ) : (
           <div className="relative h-full select-none">
             <div className="absolute inset-0 flex items-center justify-center">
@@ -37,3 +43,4 @@ const VisualizationPanel = ({ synthesisResult = '', isLoading = false }) => {
 };
 
 export default VisualizationPanel;
+
