@@ -50,19 +50,37 @@ const MainResearchInterface = () => {
     setChatMessages(prev => [...prev, userMessage]);
     setIsAiProcessing(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Build context from selected papers (use abstracts concatenated)
+      const context = selectedPapers.map(p => `Title: ${p.title}\nAbstract: ${p.abstract}`).join('\n---\n');
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: message, context })
+      });
+      if (!res.ok) throw new Error('AI request failed');
+      const data = await res.json();
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',
-        content: `Based on your selected papers, I can provide insights about "${message}". The research shows interesting patterns in space biology studies, particularly regarding microgravity effects and cellular adaptations [1][2].`,
+        content: data.answer || 'No answer',
         timestamp: new Date(),
-        citations: [1, 2]
+        citations: []
       };
-
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      console.error(err);
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'ai',
+        content: 'Lo siento, hubo un error al contactar a la IA.',
+        timestamp: new Date(),
+        citations: []
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsAiProcessing(false);
-    }, 2000);
+    }
   };
 
   const handleVisualizationCreate = (visualization) => {

@@ -17,12 +17,8 @@ const SearchPanel = ({
     organism: 'all'
   });
 
-  // Mock search results with full details
-  const mockSearchResults = [
-    { id: 1, title: "Effects of Microgravity on Plant Cell Wall Development in Arabidopsis thaliana", abstract: "This study investigates how microgravity conditions affect the development and structure of plant cell walls...", authors: ["S. Johnson et al."], year: 2023, journal: "Space Biology Research", keywords: ["microgravity", "plant biology", "cell walls"], citations: 45, url: "#" },
-    { id: 2, title: "Radiation Exposure Effects on Human Cellular DNA Repair Mechanisms", abstract: "Comprehensive analysis of DNA repair pathway responses to cosmic radiation exposure in human cell cultures...", authors: ["J. Wilson et al."], year: 2023, journal: "Aerospace Medicine", keywords: ["radiation", "DNA repair", "human cells"], citations: 62, url: "#" },
-    { id: 3, title: "Human Adaptation to Long-Duration Spaceflight", abstract: "Investigation of microbial ecosystem stability and diversity in spacecraft environmental control systems...", authors: ["A. Foster et al."], year: 2022, journal: "Astrobiology", keywords: ["microbiome", "life support", "space habitats"], citations: 38, url: "#" },
-  ];
+  const [results, setResults] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const filterOptions = {
     dateRange: [{ value: 'all', label: 'All Time' }, { value: 'recent', label: 'Last 5 Years' }],
@@ -37,6 +33,35 @@ const SearchPanel = ({
     onSearchQueryChange(localQuery);
     onSearch(localQuery, searchFilters);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingData(true);
+      try {
+        const res = await fetch('/api/papers');
+        const data = await res.json();
+        // Normalize to the shape used in UI
+        const normalized = data.map((item, idx) => ({
+          id: idx + 1,
+          title: item.original_title || item.title || 'Untitled',
+          abstract: item.abstract || '',
+          authors: typeof item.authors === 'string' ? item.authors.split(/,\s*/) : (item.authors || []),
+          year: item.year || item.publication_year || 'N/A',
+          journal: item.journal || item.source || '—',
+          keywords: item.keywords || [],
+          citations: item.citations || 0,
+          url: item.url || '#',
+        }));
+        setResults(normalized);
+      } catch (err) {
+        console.error('Failed to load papers', err);
+        setResults([]);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handlePaperToggle = (paper) => {
     const isSelected = selectedPapers.some(p => p.id === paper.id);
@@ -84,7 +109,7 @@ const SearchPanel = ({
       )}
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-        {isLoading ? (
+        {isLoading || isLoadingData ? (
           [...Array(3)].map((_, i) => (
             <div key={i} className="p-3 rounded-lg border border-border bg-secondary animate-pulse">
               <div className="h-4 bg-muted/50 rounded w-3/4 mb-3"></div>
@@ -93,7 +118,7 @@ const SearchPanel = ({
             </div>
           ))
         ) : (
-          mockSearchResults.map((paper) => {
+          results.map((paper) => {
             const isSelected = selectedPapers.some(p => p.id === paper.id);
             return (
               <div key={paper.id} className={`p-3 rounded-lg border transition-colors ${isSelected ? 'border-blue-600/50 bg-blue-600/10' : 'border-border bg-secondary/50 hover:border-accent'}`}>
