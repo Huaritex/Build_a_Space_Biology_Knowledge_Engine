@@ -1,6 +1,6 @@
-# React
+# Space Biology Explorer - NASA Space Apps Challenge
 
-A modern React-based project utilizing the latest frontend technologies and tools for building responsive web applications.
+A modern React-based project for exploring space biology data, developed for the NASA Space Apps Challenge. This application utilizes the latest frontend technologies and tools for building responsive web applications focused on space biology research and data visualization.
 
 ## 🚀 Features
 
@@ -13,6 +13,7 @@ A modern React-based project utilizing the latest frontend technologies and tool
 - **Form Management** - React Hook Form for efficient form handling
 - **Animation** - Framer Motion for smooth UI animations
 - **Testing** - Jest and React Testing Library setup
+- **Space Biology Data Integration** - NASA API integration for space biology research data
 
 ## 📋 Prerequisites
 
@@ -38,7 +39,7 @@ A modern React-based project utilizing the latest frontend technologies and tool
 ## 📁 Project Structure
 
 ```
-react_app/
+space_biology_explorer/
 ├── public/             # Static assets
 ├── src/
 │   ├── components/     # Reusable UI components
@@ -47,6 +48,8 @@ react_app/
 │   ├── App.jsx         # Main application component
 │   ├── Routes.jsx      # Application routes
 │   └── index.jsx       # Application entry point
+├── hack1/              # Additional hack project components
+├── python/             # Python backend scripts
 ├── .env                # Environment variables
 ├── index.html          # HTML template
 ├── package.json        # Project dependencies and scripts
@@ -89,7 +92,6 @@ This project uses Tailwind CSS for styling. The configuration includes:
 
 The app is built with responsive design using Tailwind CSS breakpoints.
 
-
 ## 📦 Deployment
 
 Build the application for production:
@@ -100,8 +102,7 @@ npm run build
 
 ## 🙏 Acknowledgments
 
+- Built for NASA Space Apps Challenge
 - Built with [Rocket.new](https://rocket.new)
 - Powered by React and Vite
 - Styled with Tailwind CSS
-
-
