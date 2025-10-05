@@ -19,6 +19,7 @@ A modern React-based project for exploring space biology data, developed for the
 
 - Node.js (v14.x or higher)
 - npm or yarn
+- concurrently
 
 ## 🛠️ Installation
 
@@ -31,9 +32,9 @@ A modern React-based project for exploring space biology data, developed for the
    
 2. Start the development server:
    ```bash
-   npm start
+   npm run dev
    # or
-   yarn start
+   yarn dev
    ```
 
 ## 📁 Project Structure
