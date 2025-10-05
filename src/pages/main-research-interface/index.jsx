@@ -15,6 +15,7 @@ const MainResearchInterface = () => {
   const [activePanel, setActivePanel] = useState('search');
   const [isMobile, setIsMobile] = useState(false);
   const [sessionTitle, setSessionTitle] = useState('Space Biology Research Session');
+  const [isCollapsed, setIsCollapsed] = useState(false); // State for mobile toggle
 
   useEffect(() => {
     const checkMobile = () => {
@@ -25,6 +26,10 @@ const MainResearchInterface = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   const handleSearch = async (query, filters) => {
     setIsSearchLoading(true);
@@ -50,14 +55,7 @@ const MainResearchInterface = () => {
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',
-        content: `Based on your selected papers, I can provide insights about "${message}". The research shows interesting patterns in space biology studies, particularly regarding microgravity effects and cellular adaptations [1][2].
-
-Key findings include:
-- Altered gene expression patterns in space environments
-- Changes in cellular structure and function
-- Implications for long-duration space missions
-
-Would you like me to elaborate on any specific aspect?`,
+        content: `Based on your selected papers, I can provide insights about "${message}". The research shows interesting patterns in space biology studies, particularly regarding microgravity effects and cellular adaptations [1][2].`,
         timestamp: new Date(),
         citations: [1, 2]
       };
@@ -74,7 +72,7 @@ Would you like me to elaborate on any specific aspect?`,
   };
 
   const handleVisualizationDelete = (visualizationId) => {
-    setVisualizations(prev => prev?.filter(v => v?.id !== visualizationId));
+    setVisualizations(prev => prev.filter(v => v.id !== visualizationId));
   };
 
   const handleVisualizationDownload = (visualization) => {
@@ -94,6 +92,8 @@ Would you like me to elaborate on any specific aspect?`,
       <WorkspaceHeader
         sessionTitle={sessionTitle}
         onSessionSave={handleSessionSave}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={handleToggleCollapse}
       />
       {/* Mobile Tab Navigation */}
       {isMobile && (
@@ -109,41 +109,48 @@ Would you like me to elaborate on any specific aspect?`,
       {/* Main Content */}
       <div className={`${isMobile ? 'mt-16' : 'mt-16'} h-[calc(100vh-4rem)]`}>
         {isMobile ? (
-          // Mobile: Single Panel View
-          (<div className="h-full">
-            {activePanel === 'search' && (
-              <SearchPanel
-                selectedPapers={selectedPapers}
-                onPaperSelectionChange={setSelectedPapers}
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                isLoading={isSearchLoading}
-                onSearch={handleSearch}
-              />
-            )}
-            {activePanel === 'chat' && (
-              <ChatPanel
-                selectedPapers={selectedPapers}
-                messages={chatMessages}
-                onSendMessage={handleSendMessage}
-                isAiProcessing={isAiProcessing}
-              />
-            )}
-            {activePanel === 'visualizations' && (
-              <VisualizationPanel
-                selectedPapers={selectedPapers}
-                visualizations={visualizations}
-                onVisualizationCreate={handleVisualizationCreate}
-                onVisualizationDelete={handleVisualizationDelete}
-                onVisualizationDownload={handleVisualizationDownload}
-              />
-            )}
-          </div>)
+          // Mobile: Single Panel View with collapse functionality
+          !isCollapsed && (
+            <div className="h-full p-2">
+              {activePanel === 'search' && (
+                <div className="bg-secondary rounded-lg border border-border h-full">
+                  <SearchPanel
+                    selectedPapers={selectedPapers}
+                    onPaperSelectionChange={setSelectedPapers}
+                    searchQuery={searchQuery}
+                    onSearchQueryChange={setSearchQuery}
+                    isLoading={isSearchLoading}
+                    onSearch={handleSearch}
+                  />
+                </div>
+              )}
+              {activePanel === 'chat' && (
+                <div className="bg-secondary rounded-lg border border-border h-full">
+                  <ChatPanel
+                    selectedPapers={selectedPapers}
+                    messages={chatMessages}
+                    onSendMessage={handleSendMessage}
+                    isAiProcessing={isAiProcessing}
+                  />
+                </div>
+              )}
+              {activePanel === 'visualizations' && (
+                <div className="bg-secondary rounded-lg border border-border h-full">
+                  <VisualizationPanel
+                    selectedPapers={selectedPapers}
+                    visualizations={visualizations}
+                    onVisualizationCreate={handleVisualizationCreate}
+                    onVisualizationDelete={handleVisualizationDelete}
+                    onVisualizationDownload={handleVisualizationDownload}
+                  />
+                </div>
+              )}
+            </div>
+          )
         ) : (
           // Desktop: Three Panel Layout
-          (<div className="h-full flex">
-            {/* Left Panel - Search */}
-            <div className="w-1/3 min-w-[320px] max-w-[400px]">
+          (<div className="h-full flex p-4 gap-4">
+            <div className="w-[380px] bg-secondary rounded-lg border border-border">
               <SearchPanel
                 selectedPapers={selectedPapers}
                 onPaperSelectionChange={setSelectedPapers}
@@ -153,8 +160,7 @@ Would you like me to elaborate on any specific aspect?`,
                 onSearch={handleSearch}
               />
             </div>
-            {/* Center Panel - Chat */}
-            <div className="flex-1 min-w-[400px]">
+            <div className="flex-1 bg-secondary rounded-lg border border-border">
               <ChatPanel
                 selectedPapers={selectedPapers}
                 messages={chatMessages}
@@ -162,8 +168,7 @@ Would you like me to elaborate on any specific aspect?`,
                 isAiProcessing={isAiProcessing}
               />
             </div>
-            {/* Right Panel - Visualizations */}
-            <div className="w-1/3 min-w-[320px] max-w-[400px]">
+            <div className="w-[380px] bg-secondary rounded-lg border border-border">
               <VisualizationPanel
                 selectedPapers={selectedPapers}
                 visualizations={visualizations}

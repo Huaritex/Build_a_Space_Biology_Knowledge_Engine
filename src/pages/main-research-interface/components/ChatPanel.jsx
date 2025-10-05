@@ -1,7 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
-import Input from '../../../components/ui/Input';
+
+// Placeholder for an avatar component. In a real app, you'd fetch user images.
+const Avatar = ({ sender }) => (
+  <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center">
+    <span className="text-xs font-semibold text-foreground">
+      {sender === 'AI Assistant' ? 'AI' : 'ER'}
+    </span>
+  </div>
+);
 
 const ChatPanel = ({
   selectedPapers = [],
@@ -13,37 +19,29 @@ const ChatPanel = ({
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Mock messages for demonstration
+  // Mock messages updated to match the image
   const mockMessages = [
     {
       id: 1,
       type: 'ai',
-      content: `Welcome to Space Biology Explorer! I'm your AI research assistant. I can help you analyze the selected papers and answer questions about space biology research. 
-
-Currently, you have ${selectedPapers?.length} papers selected. Feel free to ask me anything about microgravity effects, radiation exposure, or space adaptation mechanisms.`,
-      timestamp: new Date(Date.now() - 300000),
-      citations: []
+      sender: 'AI Assistant',
+      content: 'Hello! How can I assist you with your space biology data exploration today?',
+      timestamp: new Date(),
     },
     {
       id: 2,
       type: 'user',
-      content: "What are the main effects of microgravity on plant cell development?",
-      timestamp: new Date(Date.now() - 240000)
+      sender: 'Dr. Evelyn Reed',
+      content: "I'm looking for studies on the effects of microgravity on bone density in astronauts.",
+      timestamp: new Date(),
     },
     {
       id: 3,
       type: 'ai',
-      content: `Based on the selected research papers, microgravity has several significant effects on plant cell development:
-
-**Cell Wall Formation**: Studies show that microgravity conditions alter cellulose deposition patterns and lignification processes [1]. The absence of gravitational force affects how plant cells orient their growth and structural development.
-
-**Cellular Organization**: Research indicates changes in organelle positioning and cytoskeletal organization under microgravity conditions [1][3]. This impacts normal cellular functions and metabolic processes.
-
-**Gene Expression**: Multiple studies demonstrate altered gene expression patterns related to cell wall biosynthesis and structural proteins in microgravity environments [1].
-
-These findings are crucial for understanding how plants might grow in space habitats and for developing agricultural systems for long-duration space missions.`,
-      timestamp: new Date(Date.now() - 180000),
-      citations: [1, 3]
+      sender: 'AI Assistant',
+      content: "Certainly! According to Paper 3 [1], astronauts experience significant bone density loss during long-duration spaceflight due to the absence of gravitational forces. This study highlights the importance of countermeasures such as exercise and dietary supplements to mitigate these effects.",
+      timestamp: new Date(),
+      citations: [1], // From the text "Paper 3 [1]"
     }
   ];
 
@@ -65,25 +63,18 @@ These findings are crucial for understanding how plants might grow in space habi
     }
   };
 
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp)?.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   const renderCitation = (citationNumber) => {
     const paper = selectedPapers?.[citationNumber - 1];
-    if (!paper) return `[${citationNumber}]`;
+    const citationText = `[${citationNumber}]`;
+    if (!paper) return citationText;
     
     return (
       <button
         key={citationNumber}
-        className="inline-flex items-center px-1 py-0.5 bg-primary/20 text-primary text-xs rounded hover:bg-primary/30 scientific-transition"
+        className="inline-flex items-center px-1 py-0.5 bg-sky-500/20 text-sky-400 text-xs rounded hover:bg-sky-500/30 transition-colors"
         title={paper?.title}
         onClick={() => window.open(paper?.url, '_blank')}
-      >[{citationNumber}]
-              </button>
+      >{citationText}</button>
     );
   };
 
@@ -91,128 +82,90 @@ These findings are crucial for understanding how plants might grow in space habi
     if (!citations?.length) return content;
 
     let formattedContent = content;
-    citations?.forEach(citationNum => {
-      const citationRegex = new RegExp(`\\[${citationNum}\\]`, 'g');
-      formattedContent = formattedContent?.replace(
-        citationRegex,
-        `<citation-${citationNum}>`
-      );
-    });
-
-    const parts = formattedContent?.split(/(<citation-\d+>)/);
+    // Create a regex to find all citation patterns like [1], [2], etc.
+    const citationRegex = /\[(\d+)\]/g;
     
-    return parts?.map((part, index) => {
-      const citationMatch = part?.match(/^<citation-(\d+)>$/);
-      if (citationMatch) {
-        const citationNum = parseInt(citationMatch?.[1]);
-        return renderCitation(citationNum);
+    const parts = formattedContent.split(citationRegex);
+
+    return parts.map((part, index) => {
+      // Even-indexed parts are text, odd-indexed parts are citation numbers
+      if (index % 2 === 1) {
+        const citationNum = parseInt(part);
+        if (citations.includes(citationNum)) {
+          return renderCitation(citationNum);
+        } else {
+          return `[${part}]`; // It's a number in brackets but not a valid citation
+        }
       }
-      return <span key={index}>{part}</span>;
+      return part;
     });
   };
 
   return (
-    <div className="h-full flex flex-col bg-card border-r border-border">
-      {/* Chat Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-card-foreground flex items-center space-x-2">
-            <Icon name="MessageSquare" size={20} className="text-primary" />
-            <span>AI Research Assistant</span>
-          </h2>
-          
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-text-secondary">
-              {selectedPapers?.length} active papers
-            </span>
-            {isAiProcessing && (
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span className="text-xs text-primary">Processing...</span>
-              </div>
-            )}
-          </div>
+    <div className="h-full flex flex-col bg-transparent p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-foreground">Chat</h2>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>{selectedPapers.length} papers selected</span>
+          {isAiProcessing && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-xs">Processing...</span>
+            </div>
+          )}
         </div>
-        
-        {selectedPapers?.length === 0 && (
-          <div className="mt-2 p-2 bg-warning/10 border border-warning/20 rounded text-sm text-warning">
-            Select papers from the search panel to enable AI analysis
-          </div>
-        )}
       </div>
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <div className="flex-1 overflow-y-auto space-y-6 pr-2">
         {allMessages?.map((message) => (
           <div
-            key={message?.id}
-            className={`flex ${message?.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            key={message.id}
+            className={`flex items-start gap-3 ${
+              message.type === 'user' ? 'justify-end' : ''
+            }`}
           >
+            {message.type === 'ai' && <Avatar sender={message.sender} />}
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message?.type === 'user' ?'bg-primary text-primary-foreground' :'bg-muted text-muted-foreground'
+              className={`flex flex-col ${
+                message.type === 'user' ? 'items-end' : 'items-start'
               }`}
             >
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {message?.type === 'ai' 
-                  ? renderMessageContent(message?.content, message?.citations)
-                  : message?.content
-                }
-              </div>
-              <div className={`text-xs mt-2 opacity-70 ${
-                message?.type === 'user' ? 'text-right' : 'text-left'
-              }`}>
-                {formatTimestamp(message?.timestamp)}
+              <p className="text-sm font-semibold text-foreground px-1">{message.sender}</p>
+              <div
+                className={`mt-1 rounded-lg p-3 max-w-md text-sm leading-relaxed whitespace-pre-wrap ${
+                  message.type === 'user'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-secondary text-secondary-foreground'
+                }`}
+              >
+                {renderMessageContent(message.content, message.citations)}
               </div>
             </div>
+            {message.type === 'user' && <Avatar sender={message.sender} />}
           </div>
         ))}
-        
-        {isAiProcessing && (
-          <div className="flex justify-start">
-            <div className="bg-muted rounded-lg p-3">
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-text-secondary rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-text-secondary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-text-secondary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-                <span className="text-sm text-text-secondary">AI is analyzing...</span>
-              </div>
-            </div>
-          </div>
-        )}
-        
         <div ref={messagesEndRef} />
       </div>
-      {/* Chat Input */}
-      <div className="p-4 border-t border-border">
-        <form onSubmit={handleSendMessage} className="flex space-x-2">
-          <Input
+
+      <div className="mt-4">
+        <form onSubmit={handleSendMessage} className="border border-input rounded-lg p-1.5 flex items-center bg-secondary">
+          <input
             ref={inputRef}
             type="text"
-            placeholder="Comienza a escribir..."
+            placeholder="Ask a question..."
             value={inputMessage}
-            onChange={(e) => setInputMessage(e?.target?.value)}
-            disabled={isAiProcessing || selectedPapers?.length === 0}
-            className="flex-1"
+            onChange={(e) => setInputMessage(e.target.value)}
+            disabled={isAiProcessing}
+            className="flex-1 bg-transparent focus:outline-none text-foreground px-2"
           />
-          <Button
+          <button
             type="submit"
-            variant="default"
-            disabled={!inputMessage?.trim() || isAiProcessing || selectedPapers?.length === 0}
-            loading={isAiProcessing}
-            iconName="Send"
-            iconSize={16}
+            disabled={!inputMessage.trim() || isAiProcessing}
+            className="bg-blue-600 text-white rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-blue-700 disabled:bg-blue-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             Send
-          </Button>
+          </button>
         </form>
-        
-        {selectedPapers?.length > 0 && (
-          <div className="mt-2 text-xs text-text-secondary">
-            Ask questions about the {selectedPapers?.length} selected papers
-          </div>
-        )}
       </div>
     </div>
   );
