@@ -104,6 +104,6 @@ npm run build
 ## 🙏 Acknowledgments
 
 - Built for NASA Space Apps Challenge
-- Built with [Rocket.new](https://rocket.new)
+- Built with The Chistemas
 - Powered by React and Vite
 - Styled with Tailwind CSS
