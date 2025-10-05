@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Papers Chatbot</title>
+    <style>
+        body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+        #sidebar { width: 30%; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto; }
+        #main-content { width: 70%; display: flex; flex-direction: column; }
+        #chat-window { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        #chat-form { border-top: 1px solid #ccc; padding: 10px; display: flex; }
+        #chat-input { flex-grow: 1; border: 1px solid #ccc; padding: 8px; border-radius: 5px; }
+        .paper-item { padding: 8px; cursor: pointer; border-radius: 4px; }
+        .paper-item:hover { background-color: #f0f0f0; }
+        .user-message { text-align: right; margin: 10px 0; }
+        .bot-message { text-align: left; margin: 10px 0; background-color: #f1f1f1; padding: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Publicaciones</h2>
+        <div id="papers-list">Cargando...</div>
+    </div>
+
+    <div id="main-content">
+        <div id="chat-window">
+            <p>Selecciona una publicación de la izquierda para comenzar.</p>
+        </div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Haz una pregunta sobre el artículo seleccionado..." autocomplete="off" disabled>
+            <button type="submit" disabled>Enviar</button>
+        </form>
+    </div>
+
+<script>
+    const papersList = document.getElementById('papers-list');
+    const chatWindow = document.getElementById('chat-window');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const submitButton = chatForm.querySelector('button');
+
+    let allPapersData = [];
+    let currentAbstract = '';
+
+    // 1. Cargar todos los papers del JSON
+    async function loadPapers() {
+        try {
+            const response = await fetch('./nasa_publications_data.json'); // Asegúrate que el JSON esté en la misma carpeta
+            allPapersData = await response.json();
+            
+            papersList.innerHTML = ''; // Limpiar "Cargando..."
+            allPapersData.forEach((paper, index) => {
+                const paperDiv = document.createElement('div');
+                paperDiv.className = 'paper-item';
+                paperDiv.textContent = paper.original_title;
+                paperDiv.dataset.index = index; // Guardamos el índice para encontrar el abstract después
+                papersList.appendChild(paperDiv);
+            });
+        } catch (error) {
+            papersList.innerHTML = 'Error al cargar las publicaciones.';
+            console.error(error);
+        }
+    }
+
+    // 2. Manejar el clic en un paper
+    papersList.addEventListener('click', (event) => {
+        if (event.target.classList.contains('paper-item')) {
+            const paperIndex = event.target.dataset.index;
+            const selectedPaper = allPapersData[paperIndex];
+            
+            currentAbstract = selectedPaper.abstract; // Guardamos el abstract del paper seleccionado
+            
+            chatWindow.innerHTML = `
+                <h3>${selectedPaper.original_title}</h3>
+                <p><strong>Autores:</strong> ${selectedPaper.authors}</p>
+                <a href="${selectedPaper.url}" target="_blank">Ver publicación original</a>
+                <hr>
+                <p>Chat listo. Puedes preguntar sobre este artículo.</p>
+            `;
+            chatInput.disabled = false;
+            submitButton.disabled = false;
+        }
+    });
+
+    // 3. Manejar el envío de una pregunta
+    chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const userQuestion = chatInput.value.trim();
+        if (!userQuestion || !currentAbstract) return;
+
+        // Mostrar la pregunta del usuario
+        addMessage(userQuestion, 'user-message');
+        chatInput.value = '';
+        addMessage('Pensando...', 'bot-message', 'thinking');
+
+        try {
+            // Enviar pregunta y contexto al backend
+            const response = await fetch('http://localhost:3000/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question: userQuestion,
+                    context: currentAbstract
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('El servidor no respondió correctamente.');
+            }
+
+            const data = await response.json();
+            // Reemplazar el mensaje "Pensando..." con la respuesta real
+            updateLastMessage(data.answer);
+
+        } catch (error) {
+            updateLastMessage('Lo siento, hubo un error al contactar a la IA.');
+            console.error(error);
+        }
+    });
+
+    function addMessage(text, className, id = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = className;
+        messageDiv.textContent = text;
+        if (id) messageDiv.id = id;
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll hacia abajo
+    }
+
+    function updateLastMessage(text) {
+        const thinkingMessage = document.getElementById('thinking');
+        if (thinkingMessage) {
+            thinkingMessage.textContent = text;
+            thinkingMessage.id = '';
+        }
+    }
+
+
+    // Iniciar todo
+    loadPapers();
+</script>
+
+</body>
+</html>
