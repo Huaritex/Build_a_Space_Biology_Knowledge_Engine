@@ -13,6 +13,7 @@ const ChatPanel = ({
   selectedPapers = [],
   messages = [],
   onSendMessage = () => {},
+  onSynthesize = () => {},
   isAiProcessing = false
 }) => {
   const [inputMessage, setInputMessage] = useState('');
@@ -104,7 +105,7 @@ const ChatPanel = ({
   return (
     <div className="h-full flex flex-col bg-transparent p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">Chat</h2>
+        <h2 className="text-xl font-semibold text-foreground">TESS Chat</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{selectedPapers.length} papers selected</span>
           {isAiProcessing && (
@@ -132,23 +133,48 @@ const ChatPanel = ({
             >
               <p className="text-sm font-semibold text-foreground px-1">{message.sender}</p>
               <div
-                className={`mt-1 rounded-lg p-3 max-w-md text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`mt-1 rounded-2xl p-3 max-w-md text-sm leading-relaxed whitespace-pre-wrap shadow relative ${
                   message.type === 'user'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-secondary text-secondary-foreground'
+                    : 'bg-slate-700 text-white'
                 }`}
               >
+                {message.type === 'user' ? (
+                  <div className="absolute -right-1 top-3 w-3 h-3 bg-blue-600 rotate-45 shadow" />
+                ) : (
+                  <div className="absolute -left-1 top-3 w-3 h-3 bg-slate-700 rotate-45 shadow" />
+                )}
                 {renderMessageContent(message.content, message.citations)}
               </div>
             </div>
             {message.type === 'user' && <Avatar sender={message.sender} />}
           </div>
         ))}
+        {isAiProcessing && (
+          <div className="flex items-start gap-3">
+            <Avatar sender={'TESS'} />
+            <div className="flex flex-col items-start">
+              <p className="text-sm font-semibold text-foreground px-1">TESS</p>
+              <div className="mt-1 rounded-2xl p-3 max-w-md text-sm leading-relaxed shadow bg-slate-700 text-white relative">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                  <span>Redactando respuesta…</span>
+                </div>
+                <div className="mt-2 space-y-2">
+                  <div className="h-2 w-48 bg-muted rounded animate-pulse"></div>
+                  <div className="h-2 w-56 bg-muted rounded animate-pulse"></div>
+                  <div className="h-2 w-40 bg-muted rounded animate-pulse"></div>
+                </div>
+                <div className="absolute -left-1 top-3 w-3 h-3 bg-slate-700 rotate-45 shadow" />
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
       <div className="mt-4">
-        <form onSubmit={handleSendMessage} className="border border-input rounded-lg p-1.5 flex items-center bg-secondary">
+        <form onSubmit={handleSendMessage} className="border-2 border-slate-700 rounded-2xl p-2 flex items-center bg-secondary gap-2 shadow">
           <input
             ref={inputRef}
             type="text"
@@ -161,9 +187,17 @@ const ChatPanel = ({
           <button
             type="submit"
             disabled={!inputMessage.trim() || isAiProcessing}
-            className="bg-blue-600 text-white rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-blue-700 disabled:bg-blue-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="bg-blue-600 text-white rounded-md px-4 py-1.5 text-sm font-semibold hover:bg-blue-700 disabled:bg-blue-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors shadow"
           >
             Send
+          </button>
+          <button
+            type="button"
+            onClick={() => onSynthesize()}
+            disabled={isAiProcessing || selectedPapers.length === 0}
+            className="bg-emerald-600 text-white rounded-md px-3 py-1.5 text-sm font-semibold hover:bg-emerald-700 disabled:bg-emerald-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors shadow"
+          >
+            TESS Synthesis
           </button>
         </form>
       </div>

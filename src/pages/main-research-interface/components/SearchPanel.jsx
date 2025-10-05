@@ -7,7 +7,8 @@ const SearchPanel = ({
   searchQuery = '',
   onSearchQueryChange = () => {},
   isLoading = false,
-  onSearch = () => {}
+  onSearch = () => {},
+  onSynthesizeSelected = () => {}
 }) => {
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
@@ -154,10 +155,20 @@ const SearchPanel = ({
     <div className="h-full flex flex-col bg-transparent p-4 text-foreground">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Search Papers</h2>
-        <button onClick={() => setIsFiltersExpanded(!isFiltersExpanded)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <span>Filters</span>
-          <ChevronDown className={`w-4 h-4 transition-transform ${isFiltersExpanded ? 'rotate-180' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setIsFiltersExpanded(!isFiltersExpanded)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <span>Filters</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${isFiltersExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          <button
+            onClick={onSynthesizeSelected}
+            disabled={selectedPapers.length === 0 || isLoading || isLoadingData}
+            className="text-xs font-semibold px-2.5 py-1.5 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow"
+            title="Generar síntesis con TESS de los papers seleccionados"
+          >
+            TESS Synthesis
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSearchSubmit} className="space-y-3 mb-4">

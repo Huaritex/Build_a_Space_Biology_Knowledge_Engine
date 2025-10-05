@@ -12,6 +12,8 @@ const MainResearchInterface = () => {
   const [chatMessages, setChatMessages] = useState([]);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [visualizations, setVisualizations] = useState([]);
+  const [synthesisResult, setSynthesisResult] = useState('');
+  const [isSynthesisLoading, setIsSynthesisLoading] = useState(false);
   const [activePanel, setActivePanel] = useState('search');
   const [isMobile, setIsMobile] = useState(false);
   const [sessionTitle, setSessionTitle] = useState('Space Biology Research Session');
@@ -83,6 +85,38 @@ const MainResearchInterface = () => {
     }
   };
 
+  const handleSynthesize = async () => {
+    if (!selectedPapers?.length) return;
+    setIsAiProcessing(true);
+    setIsSynthesisLoading(true);
+    // Focus visualization panel for the user
+    setActivePanel('visualizations');
+
+    try {
+      const SEPARATOR = '---FIN DEL PAPER---';
+      const context = selectedPapers.map(p => `Título: ${p.title}\nAutores: ${(p.authors || []).join(', ')}\nAño: ${p.year}\nResumen: ${p.abstract}`).join(`\n${SEPARATOR}\n`);
+      const instruction = `Eres una IA experta en análisis de investigación, construida sobre Gemini. Tu especialidad es leer papers científicos complejos de cualquier disciplina y destilar su contenido en un "Resumen Ejecutivo" claro y fácil de leer.
+
+Tu única tarea es analizar el texto proporcionado y generar un Resumen Ejecutivo en texto plano, utilizando formato Markdown para los títulos y las viñetas. La respuesta debe ser únicamente el resumen, sin saludos, comentarios adicionales ni código JSON.
+
+Genera la salida siguiendo ese formato y solo devuelve el resumen en Markdown.`;
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: instruction, context })
+      });
+      if (!res.ok) throw new Error('AI request failed');
+      const data = await res.json();
+      const resultText = data.answer || 'Sin respuesta';
+      setSynthesisResult(resultText);
+    } catch (err) {
+      setSynthesisResult('Lo siento, hubo un error al realizar la síntesis con TESS.');
+    } finally {
+      setIsAiProcessing(false);
+      setIsSynthesisLoading(false);
+    }
+  };
+
   const handleVisualizationCreate = (visualization) => {
     if (visualizations?.length < 6) {
       setVisualizations(prev => [...prev, visualization]);
@@ -148,6 +182,7 @@ const MainResearchInterface = () => {
                     selectedPapers={selectedPapers}
                     messages={chatMessages}
                     onSendMessage={handleSendMessage}
+                onSynthesize={handleSynthesize}
                     isAiProcessing={isAiProcessing}
                   />
                 </div>
@@ -176,6 +211,7 @@ const MainResearchInterface = () => {
                 onSearchQueryChange={setSearchQuery}
                 isLoading={isSearchLoading}
                 onSearch={handleSearch}
+                onSynthesizeSelected={handleSynthesize}
               />
             </div>
             <div className="flex-1 bg-secondary rounded-lg border border-border">
@@ -183,17 +219,12 @@ const MainResearchInterface = () => {
                 selectedPapers={selectedPapers}
                 messages={chatMessages}
                 onSendMessage={handleSendMessage}
+                onSynthesize={handleSynthesize}
                 isAiProcessing={isAiProcessing}
               />
             </div>
             <div className="w-[380px] bg-secondary rounded-lg border border-border">
-              <VisualizationPanel
-                selectedPapers={selectedPapers}
-                visualizations={visualizations}
-                onVisualizationCreate={handleVisualizationCreate}
-                onVisualizationDelete={handleVisualizationDelete}
-                onVisualizationDownload={handleVisualizationDownload}
-              />
+              <VisualizationPanel synthesisResult={synthesisResult} isLoading={isSynthesisLoading} />
             </div>
           </div>)
         )}

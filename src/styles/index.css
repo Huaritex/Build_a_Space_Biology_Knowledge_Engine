@@ -3,6 +3,7 @@ body {
   padding: 0;
   font-family: Inter;
   overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.02) inset;
 }
 
 * {
