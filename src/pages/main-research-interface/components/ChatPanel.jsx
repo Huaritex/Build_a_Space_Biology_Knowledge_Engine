@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 const Avatar = ({ sender }) => (
   <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center">
     <span className="text-xs font-semibold text-foreground">
-      {sender === 'AI Assistant' ? 'AI' : 'ER'}
+      {sender === 'TESS' ? 'AI' : 'ER'}
     </span>
   </div>
 );
@@ -24,21 +24,21 @@ const ChatPanel = ({
     {
       id: 1,
       type: 'ai',
-      sender: 'AI Assistant',
+      sender: 'TESS',
       content: 'Hello! How can I assist you with your space biology data exploration today?',
       timestamp: new Date(),
     },
     {
       id: 2,
       type: 'user',
-      sender: 'Dr. Evelyn Reed',
+      sender: 'Usuario',
       content: "I'm looking for studies on the effects of microgravity on bone density in astronauts.",
       timestamp: new Date(),
     },
     {
       id: 3,
       type: 'ai',
-      sender: 'AI Assistant',
+      sender: 'TESS',
       content: "Certainly! According to Paper 3 [1], astronauts experience significant bone density loss during long-duration spaceflight due to the absence of gravitational forces. This study highlights the importance of countermeasures such as exercise and dietary supplements to mitigate these effects.",
       timestamp: new Date(),
       citations: [1], // From the text "Paper 3 [1]"

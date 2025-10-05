@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Save, User, LogOut, Download, FileText, Edit2, Menu, X } from 'lucide-react';
+import { HelpCircle, FileText, Edit2, Menu, X } from 'lucide-react';
 
 // A simple placeholder for the new logo SVG
 const Logo = () => (
@@ -10,20 +10,13 @@ const Logo = () => (
   </svg>
 );
 
-// A placeholder for the user's avatar, now a button
-const UserAvatar = ({ onClick }) => (
-  <button onClick={onClick} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-ring">
-    <span className="text-sm font-semibold text-foreground">ER</span>
-  </button>
-);
-
 const WorkspaceHeader = ({ 
   sessionTitle = "Research Session", 
   onSessionSave = () => {},
   isCollapsed = false,
   onToggleCollapse = () => {}
 }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(sessionTitle);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
@@ -31,7 +24,7 @@ const WorkspaceHeader = ({
     setCurrentTitle(sessionTitle);
   }, [sessionTitle]);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleAbout = () => setIsAboutOpen(!isAboutOpen);
 
   const handleTitleSave = () => {
     setIsEditingTitle(false);
@@ -46,18 +39,7 @@ const WorkspaceHeader = ({
     }
   };
 
-  const handleMenuAction = (action) => {
-    if (action === 'save') {
-      onSessionSave(currentTitle);
-    } else if (action === 'export') {
-      // Mock data export functionality
-      console.log(`Mock Export: Exporting data for session "${currentTitle}"`);
-      // In a real app, this would trigger a download or API call.
-    } else {
-      console.log(`${action} clicked`);
-    }
-    setIsMenuOpen(false);
-  };
+  const closeAbout = () => setIsAboutOpen(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
@@ -99,43 +81,35 @@ const WorkspaceHeader = ({
             {isCollapsed ? <Menu className="w-5 h-5 text-muted-foreground" /> : <X className="w-5 h-5 text-muted-foreground" />}
           </button>
 
-          <button className="p-1.5 rounded-full hover:bg-secondary hidden md:block">
+          <button onClick={toggleAbout} className="p-1.5 rounded-full hover:bg-secondary hidden md:block" aria-label="About">
             <HelpCircle className="w-5 h-5 text-muted-foreground" />
           </button>
 
-          <UserAvatar onClick={toggleMenu} />
-
-          {/* User Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-56 bg-popover border border-border rounded-lg shadow-lg z-50">
-              <div className="py-1">
-                <button onClick={() => handleMenuAction('save')} className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent">
-                  <Save className="w-4 h-4" />
-                  <span>Save Session</span>
-                </button>
-                <button onClick={() => handleMenuAction('export')} className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent">
-                  <Download className="w-4 h-4" />
-                  <span>Export Data</span>
-                </button>
-                <div className="my-1 h-px bg-border" />
-                <button onClick={() => handleMenuAction('profile')} className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent">
-                  <User className="w-4 h-4" />
-                  <span>Profile</span>
-                </button>
-                <button onClick={() => handleMenuAction('logout')} className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent">
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
+          {/* About Panel */}
+          {isAboutOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 bg-popover border border-border rounded-lg shadow-lg z-50">
+              <div className="p-4 text-sm text-popover-foreground">
+                <h3 className="text-base font-semibold mb-2">About Space Biology Explorer</h3>
+                <p className="mb-2">Explora, selecciona y analiza publicaciones de biología espacial. Integra un chat con IA (Gemini) que responde exclusivamente usando los papers seleccionados.</p>
+                <ul className="list-disc pl-5 space-y-1 mb-3">
+                  <li>Search inteligente con resaltado de términos</li>
+                  <li>Chat contextual con referencias</li>
+                  <li>Panel de visualización extensible</li>
+                </ul>
+                <div className="text-xs text-muted-foreground">v0.1.0 • React + Vite • Tailwind</div>
+                <div className="mt-3 flex justify-end">
+                  <button onClick={closeAbout} className="px-3 py-1.5 text-xs rounded bg-secondary hover:bg-muted">Close</button>
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
       {/* Click outside to close menu */}
-      {isMenuOpen && (
+      {isAboutOpen && (
         <div 
           className="fixed inset-0 z-40" 
-          onClick={() => setIsMenuOpen(false)}
+          onClick={closeAbout}
         />
       )}
     </header>
